@@ -6,7 +6,6 @@ class MyExprVisitor(ExprVisitor):
         self.results = []
         self.variables = {}
 
-    # Implementace metod pro jednotlivá pravidla
     def visitExpression(self, ctx):
         result = self.visit(ctx.expr())
         self.results.append(result)
@@ -48,5 +47,3 @@ class MyExprVisitor(ExprVisitor):
 
     def visitPar(self, ctx):
         return self.visit(ctx.expr())
-
-    # Implementace dalších metod podle potřeby

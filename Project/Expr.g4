@@ -27,11 +27,11 @@ expr: ID '=' expr                   # assign
     | STRING                        # string
     ;
 
-ID : [a-zA-Z]+ ;        // match identifiers
-INT : [1-9][0-9]* ;          // match integers
-FLOAT : [0-9]+ '.' [0-9]+ ; // match floats
-STRING: '"' ( ~["\r\n\\] | '\\' . )* '"' ; // String in double quotes with escape support
+ID : [a-zA-Z]+ ;                            // match identifiers
+INT : [1-9][0-9]* ;                         // match integers
+FLOAT : [0-9]+ '.' [0-9]+ ;                 // match floats
+STRING: '"' ( ~["\r\n\\] | '\\' . )* '"' ;  // String in double quotes with escape support
 OCT : '0'[0-7]* ;
 HEXA : '0x'[0-9a-fA-F]+ ;
-WS : [ \t\r\n]+ -> skip ;   // toss out whitespace
+WS : [ \t\r\n]+ -> skip ;                   // toss out whitespace
 ADD : '+' ;
