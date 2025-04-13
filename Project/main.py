@@ -35,18 +35,15 @@ a + b * 2;
     visitor = MyExprVisitor()  # Předpokládám, že máte vlastní implementaci visitoru
     visitor.visit(tree)
 
-    # Pokud váš visitor nevrací seznam, ale ukládá výsledky interně:
-    if hasattr(visitor, 'results'):
-        for r in visitor.results:
-            print(r)
+    for result in visitor.results:
+        print(result)
 
     listener = MyExprListener()  # Předpokládám, že máte vlastní implementaci listeneru
     walker = ParseTreeWalker()
     walker.walk(listener, tree)
 
-    if hasattr(listener, 'values'):
-        for key, value in listener.values.items():
-            print(f"{key}: {value}")
+    for var_name, value in visitor.variables.items():
+        print(f"{var_name}: {value}")
 
 
 if __name__ == '__main__':

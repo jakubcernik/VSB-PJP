@@ -39,11 +39,15 @@ class MyExprVisitor(ExprVisitor):
     def visitFloat(self, ctx):
         return float(ctx.FLOAT().getText())
 
+    def visitString(self, ctx):
+        return ctx.STRING().getText()[1:-1]
+
+    def visitBool(self, ctx):
+        return ctx.BOOL().getText() == 'true'
+
     def visitVar(self, ctx):
         var_name = ctx.ID().getText()
-        if var_name in self.variables:
-            return self.variables[var_name]
-        return 0
+        return self.variables.get(var_name)
 
     def visitPar(self, ctx):
         return self.visit(ctx.expr())
