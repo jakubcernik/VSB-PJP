@@ -89,15 +89,6 @@ class ExprListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by ExprParser#oct.
-    def enterOct(self, ctx:ExprParser.OctContext):
-        pass
-
-    # Exit a parse tree produced by ExprParser#oct.
-    def exitOct(self, ctx:ExprParser.OctContext):
-        pass
-
-
     # Enter a parse tree produced by ExprParser#string.
     def enterString(self, ctx:ExprParser.StringContext):
         pass
@@ -113,15 +104,6 @@ class ExprListener(ParseTreeListener):
 
     # Exit a parse tree produced by ExprParser#mul.
     def exitMul(self, ctx:ExprParser.MulContext):
-        pass
-
-
-    # Enter a parse tree produced by ExprParser#hexa.
-    def enterHexa(self, ctx:ExprParser.HexaContext):
-        pass
-
-    # Exit a parse tree produced by ExprParser#hexa.
-    def exitHexa(self, ctx:ExprParser.HexaContext):
         pass
 
 

@@ -54,11 +54,6 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by ExprParser#oct.
-    def visitOct(self, ctx:ExprParser.OctContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by ExprParser#string.
     def visitString(self, ctx:ExprParser.StringContext):
         return self.visitChildren(ctx)
@@ -66,11 +61,6 @@ class ExprVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by ExprParser#mul.
     def visitMul(self, ctx:ExprParser.MulContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by ExprParser#hexa.
-    def visitHexa(self, ctx:ExprParser.HexaContext):
         return self.visitChildren(ctx)
 
 
