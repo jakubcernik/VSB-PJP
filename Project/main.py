@@ -10,6 +10,7 @@ def main():
     input_text = """
 a = 3;
 b = 4;
+c = true;
 "Hello, World!";
 a + b * 2;
 (1 + 2) * 3;

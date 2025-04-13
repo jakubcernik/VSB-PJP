@@ -44,6 +44,11 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExprParser#boolType.
+    def visitBoolType(self, ctx:ExprParser.BoolTypeContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExprParser#par.
     def visitPar(self, ctx:ExprParser.ParContext):
         return self.visitChildren(ctx)
@@ -56,6 +61,11 @@ class ExprVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by ExprParser#string.
     def visitString(self, ctx:ExprParser.StringContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#bool.
+    def visitBool(self, ctx:ExprParser.BoolContext):
         return self.visitChildren(ctx)
 
 

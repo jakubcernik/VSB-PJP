@@ -43,7 +43,15 @@ class MyExprVisitor(ExprVisitor):
         return ctx.STRING().getText()[1:-1]
 
     def visitBool(self, ctx):
-        return ctx.BOOL().getText() == 'true'
+        # Convert 'true' and 'false' to Python's True and False
+        print(f"Visiting BOOL: {ctx.getText()}")
+        text = ctx.getText()
+        if text == 'true':
+            return True
+        elif text == 'false':
+            return False
+        else:
+            raise ValueError(f"Unexpected boolean value: {text}")
 
     def visitVar(self, ctx):
         var_name = ctx.ID().getText()

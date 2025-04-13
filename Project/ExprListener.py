@@ -71,6 +71,15 @@ class ExprListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by ExprParser#boolType.
+    def enterBoolType(self, ctx:ExprParser.BoolTypeContext):
+        pass
+
+    # Exit a parse tree produced by ExprParser#boolType.
+    def exitBoolType(self, ctx:ExprParser.BoolTypeContext):
+        pass
+
+
     # Enter a parse tree produced by ExprParser#par.
     def enterPar(self, ctx:ExprParser.ParContext):
         pass
@@ -95,6 +104,15 @@ class ExprListener(ParseTreeListener):
 
     # Exit a parse tree produced by ExprParser#string.
     def exitString(self, ctx:ExprParser.StringContext):
+        pass
+
+
+    # Enter a parse tree produced by ExprParser#bool.
+    def enterBool(self, ctx:ExprParser.BoolContext):
+        pass
+
+    # Exit a parse tree produced by ExprParser#bool.
+    def exitBool(self, ctx:ExprParser.BoolContext):
         pass
 
 

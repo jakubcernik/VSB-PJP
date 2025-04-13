@@ -29,11 +29,11 @@ expr: ID '=' expr                   # assign
 
     ;
 
+BOOL: 'true' | 'false';
 ID: [a-zA-Z_][a-zA-Z_0-9]*;
 INT: [0-9]+;
 FLOAT: [0-9]+'.'[0-9]+;
 STRING: '"' ( ~["\\] | '\\' . )* '"';
-BOOL: 'true' | 'false';
 
 // Skip whitespace and comments
 WS : [ \t\r\n]+ -> skip ;
