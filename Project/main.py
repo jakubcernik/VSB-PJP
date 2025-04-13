@@ -10,7 +10,8 @@ def main():
     input_text = """
 a = 3;
 b = 4;
-a + b * 2w;
+"Hello, World!";
+a + b * 2;
 (1 + 2) * 3;
 """
     input_stream = InputStream(input_text)

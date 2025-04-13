@@ -14,6 +14,7 @@ decl: type ID (',' ID)*             # variableDecl
 type: 'int'                         #intType
     | 'float'                       #floatType
     | 'string'                      #stringType
+    | 'bool'                        #boolType
     ;
 
 expr: ID '=' expr                   # assign
@@ -21,15 +22,18 @@ expr: ID '=' expr                   # assign
     | expr op=('+'|'-') expr        # add
     | INT                           # int
     | FLOAT                         # float
+    | STRING                        # string
+    | BOOL                          # bool
     | ID                            # var
     | '(' expr ')'                  # par
-    | STRING                        # string
+
     ;
 
 ID: [a-zA-Z_][a-zA-Z_0-9]*;
 INT: [0-9]+;
 FLOAT: [0-9]+'.'[0-9]+;
-STRING: '"' .*? '"';
+STRING: '"' ( ~["\\] | '\\' . )* '"';
+BOOL: 'true' | 'false';
 
 // Skip whitespace and comments
 WS : [ \t\r\n]+ -> skip ;
