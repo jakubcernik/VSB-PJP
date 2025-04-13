@@ -1,5 +1,6 @@
 grammar Expr;
 
+
 /** The start rule; begin parsing here. */
 prog: (stmt ';')+;
 
@@ -20,18 +21,32 @@ expr: ID '=' expr                   # assign
     | expr op=('+'|'-') expr        # add
     | INT                           # int
     | FLOAT                         # float
-    | OCT                           # oct
-    | HEXA                          # hexa
     | ID                            # var
     | '(' expr ')'                  # par
     | STRING                        # string
     ;
 
-ID : [a-zA-Z]+ ;                            // match identifiers
-INT : [1-9][0-9]* ;                         // match integers
-FLOAT : [0-9]+ '.' [0-9]+ ;                 // match floats
-STRING: '"' ( ~["\r\n\\] | '\\' . )* '"' ;  // String in double quotes with escape support
-OCT : '0'[0-7]* ;
-HEXA : '0x'[0-9a-fA-F]+ ;
-WS : [ \t\r\n]+ -> skip ;                   // toss out whitespace
-ADD : '+' ;
+ID: [a-zA-Z_][a-zA-Z_0-9]*;
+INT: [0-9]+;
+FLOAT: [0-9]+'.'[0-9]+;
+STRING: '"' .*? '"';
+
+// Skip whitespace and comments
+WS : [ \t\r\n]+ -> skip ;
+COMMENT: '//' ~[\r\n]* -> skip;
+
+// Keywords
+IF: 'if';
+ELSE: 'else';
+WHILE: 'while';
+RETURN: 'return';
+
+// Operators
+PLUS: '+';
+MINUS: '-';
+MUL: '*';
+DIV: '/';
+ASSIGN: '=';
+SEMI: ';';
+LPAREN: '(';
+RPAREN: ')';
