@@ -8,37 +8,27 @@ import sys
 
 def main():
     input_text = """
-int a, b;
-float c;
-bool d;
-string e;
+write "<Testing errors>";
 
-a = 5;
-b = 10;
-c = 3.14;
-d = true;
-e = "Hello, World!";
+write "4) mod used with float";
+write "20 mod 3.0: ", 20 % 3.0;
 
-{
-    int x;
-    x = 20;
-    write "In block: x =", x;
-}
+write "8) assignment of float to int";
+int x;
+x = 13.25;
+write "x=13.25: ", x;
 
-if (a > b) {
-    write "a is greater than b";
-} else {
-    write "a is not greater than b";
-}
+write "12) . only for strings";
+write "abc+10: ", "abc". 10;
 
-int i;
-i = 0;
-while (i < 5) {
-    write "i =", i;
-    i = i + 1;
-}
+write "15) multiple declarations";
+float x;
 
-write "Final values:", a, b, c;
+write "18) missing declaration";
+y = 10;
+
+write "21) + wont work with strings";
+write "x+y", "x"+"y";
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)

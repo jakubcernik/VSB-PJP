@@ -125,6 +125,13 @@ class MyExprVisitor(ExprVisitor):
             if right == 0:
                 raise ZeroDivisionError("Division by zero")
             return left / right if isinstance(left, float) or isinstance(right, float) else left // right
+        elif ctx.op.text == '%':
+            # For modulo, both operands must be integers
+            if not (isinstance(left, int) and isinstance(right, int)):
+                raise TypeError("Modulo operation requires integer operands")
+            if right == 0:
+                raise ZeroDivisionError("Modulo by zero")
+            return left % right
 
         return None
 
@@ -157,8 +164,11 @@ class MyExprVisitor(ExprVisitor):
 
         return self.variables[var_name]
 
-    def visitPar(self, ctx):
-        return self.visit(ctx.expr())
+    def visitParens(self, ctx):
+        print(f"DEBUG: Visiting parens with: {ctx.expr().getText()}")
+        result = self.visit(ctx.expr())
+        print(f"DEBUG: Parens result: {result}, type: {type(result)}")
+        return result
 
     def visitReadStmt(self, ctx):
         # Process each variable in the read statement
@@ -334,10 +344,15 @@ class MyExprVisitor(ExprVisitor):
         return left or right
 
     def visitNot(self, ctx):
+        print(f"DEBUG: Not operator examining expression: {ctx.expr().getText()}")
         value = self.visit(ctx.expr())
-
-        # Check if the operand is a boolean
+        print(f"DEBUG: Not operator received value: {value} of type {type(value)}")
         if not isinstance(value, bool):
             raise TypeError("Operand of '!' must be boolean")
-
         return not value
+
+    def visitUnaryMinus(self, ctx):
+        value = self.visit(ctx.expr())
+        if not isinstance(value, (int, float)):
+            raise TypeError(f"Cannot apply unary minus to non-numeric value: {value}")
+        return -value

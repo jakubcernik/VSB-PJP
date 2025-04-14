@@ -242,6 +242,15 @@ class ExprListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by ExprParser#unaryMinus.
+    def enterUnaryMinus(self, ctx:ExprParser.UnaryMinusContext):
+        pass
+
+    # Exit a parse tree produced by ExprParser#unaryMinus.
+    def exitUnaryMinus(self, ctx:ExprParser.UnaryMinusContext):
+        pass
+
+
     # Enter a parse tree produced by ExprParser#equality.
     def enterEquality(self, ctx:ExprParser.EqualityContext):
         pass

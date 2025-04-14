@@ -24,20 +24,22 @@ type: 'int'                         #intType
     ;
 
 expr:
-    left=expr op=('*'|'/') right=expr   # mulDiv
-    | left=expr op=('+'|'-') right=expr   # addSub
+    left=expr op=('*'|'/'|'%') right=expr  #mulDiv
+    | '(' expr ')'                # parens
+    | left=expr op=('+'|'-'|'.') right=expr  #addSub
+    | '!' expr                     # not
     | left=expr op=('<'|'>'|'<='|'>=') right=expr   # comparison
     | left=expr op=('=='|'!=') right=expr    # equality
     | left=expr '&&' right=expr   # and
     | left=expr '||' right=expr   # or
-    | '!' expr                     # not
     | ID '=' expr                 # assign   // Move assignment to a lower precedence
     | ID                          # variable
     | INT                         # int
     | FLOAT                       # float
     | BOOL                        # bool
     | STRING                      # string
-    | '(' expr ')'                # parens
+
+    | '-' expr                # unaryMinus
     ;
 
 BOOL: 'true' | 'false';
@@ -46,6 +48,8 @@ INT: [0-9]+;
 FLOAT: [0-9]+'.'[0-9]+;
 STRING: '"' ( ~["\\] | '\\' . )* '"';
 SEMI: ';';
+MODULO: '%';
+CONCAT: '.';
 
 // Skip whitespace and comments
 WS : [ \t\r\n]+ -> skip ;

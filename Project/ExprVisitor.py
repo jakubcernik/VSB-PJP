@@ -139,6 +139,11 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExprParser#unaryMinus.
+    def visitUnaryMinus(self, ctx:ExprParser.UnaryMinusContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExprParser#equality.
     def visitEquality(self, ctx:ExprParser.EqualityContext):
         return self.visitChildren(ctx)
