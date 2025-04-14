@@ -51,13 +51,17 @@ class MyExprVisitor(ExprVisitor):
 
     def visitAssign(self, ctx):
         var_name = ctx.ID().getText()
+
+        # First evaluate the expression on the right side
         value = self.visit(ctx.expr())
+
+        print(f"Debug: Assigning {var_name} = {value} (expression: {ctx.expr().getText()})")
 
         # Check if the variable is declared
         if var_name not in self.variables:
             raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
-        # Type-check the value being assigned
+        # Type-check
         var_type = self.variable_types[var_name]
         if var_type == "int" and not isinstance(value, int):
             raise TypeError(f"Cannot assign non-integer value to variable '{var_name}'.")
@@ -68,16 +72,29 @@ class MyExprVisitor(ExprVisitor):
         elif var_type == "string" and not isinstance(value, str):
             raise TypeError(f"Cannot assign non-string value to variable '{var_name}'.")
 
-        # Assign the value
+        # Update the variable value
         self.variables[var_name] = value
+
+        print(f"Updated {var_name} to {value}")
+
         return value
 
-    def visitAdd(self, ctx):
-        left = self.visit(ctx.expr(0))
-        right = self.visit(ctx.expr(1))
-        if ctx.op.text == '+':
-            return left + right
-        return left - right
+    def visitAddSub(self, ctx):
+        left = self.visit(ctx.left)
+        right = self.visit(ctx.right)
+
+        # Check that both operands are numeric
+        if not (isinstance(left, (int, float)) and isinstance(right, (int, float))):
+            raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} and {right}")
+
+        op = ctx.op.text
+        if op == '+':
+            result = left + right
+        else:
+            result = left - right
+
+        print(f"Calculated: {left} {op} {right} = {result}")
+        return result
 
     def visitMul(self, ctx):
         left = self.visit(ctx.expr(0))
@@ -108,7 +125,7 @@ class MyExprVisitor(ExprVisitor):
         else:
             raise ValueError(f"Unexpected boolean value: {text}")
 
-    def visitVar(self, ctx):
+    def visitVariable(self, ctx):
         var_name = ctx.ID().getText()
 
         # Check if the variable is declared
@@ -172,3 +189,132 @@ class MyExprVisitor(ExprVisitor):
         print(" ".join(output_values))
 
         return None
+
+    def visitBlock(self, ctx):
+        # Execute each statement in the block
+        for stmt in ctx.stmt():
+            self.visit(stmt)
+        return None
+
+    def visitIfStmt(self, ctx):
+        condition = self.visit(ctx.expr())
+
+        # Check if condition is boolean
+        if not isinstance(condition, bool):
+            raise TypeError("Condition in 'if' statement must be a boolean expression")
+
+        # If condition is true, execute the 'then' statement
+        if condition:
+            self.visit(ctx.stmt(0))
+        # If condition is false and there's an 'else' part, execute it
+        elif ctx.stmt(1):
+            self.visit(ctx.stmt(1))
+
+        return None
+
+    def visitWhileStmt(self, ctx):
+        print("\nEntering while loop")
+        # Keep executing the statement as long as the condition is true
+        while True:
+            print("\nLoop iteration")
+            print(f"Current variables: {self.variables}")
+
+            condition = self.visit(ctx.expr())
+            print(f"While loop condition result: {condition}")
+
+            # Check if condition is boolean
+            if not isinstance(condition, bool):
+                raise TypeError("Condition in 'while' loop must be a boolean expression")
+
+            # Exit loop if condition is false
+            if not condition:
+                break
+
+            # Execute the body of the loop
+            self.visit(ctx.stmt())
+            print(f"After loop body, variables: {self.variables}")
+
+        print("Exiting while loop")
+        return None
+
+    def visitComparison(self, ctx):
+        left = self.visit(ctx.left)
+        right = self.visit(ctx.right)
+
+        print(f"Comparing: {left} ({type(left)}) {ctx.op.text} {right} ({type(right)})")
+
+        # Check for numeric types
+        if not ((isinstance(left, int) or isinstance(left, float)) and
+                (isinstance(right, int) or isinstance(right, float))):
+            raise TypeError("Cannot compare non-numeric values")
+
+        op = ctx.op.text
+        if op == '<':
+            return left < right
+        elif op == '>':
+            return left > right
+        elif op == '<=':
+            return left <= right
+        elif op == '>=':
+            return left >= right
+
+        return None
+
+    def visitEquality(self, ctx):
+        left = self.visit(ctx.left)
+        right = self.visit(ctx.right)
+
+        op = ctx.op.text
+        if op == '==':
+            return left == right
+        elif op == '!=':
+            return left != right
+
+        return None
+
+    def visitAnd(self, ctx):
+        left = self.visit(ctx.left)
+
+        # Check if left operand is a boolean
+        if not isinstance(left, bool):
+            raise TypeError("Operands of '&&' must be boolean")
+
+        # Short-circuit evaluation - only evaluate right if left is True
+        if not left:
+            return False
+
+        right = self.visit(ctx.right)
+
+        # Check if right operand is a boolean
+        if not isinstance(right, bool):
+            raise TypeError("Operands of '&&' must be boolean")
+
+        return left and right
+
+    def visitOr(self, ctx):
+        left = self.visit(ctx.left)
+
+        # Check if left operand is a boolean
+        if not isinstance(left, bool):
+            raise TypeError("Operands of '||' must be boolean")
+
+        # Short-circuit evaluation - only evaluate right if left is False
+        if left:
+            return True
+
+        right = self.visit(ctx.right)
+
+        # Check if right operand is a boolean
+        if not isinstance(right, bool):
+            raise TypeError("Operands of '||' must be boolean")
+
+        return left or right
+
+    def visitNot(self, ctx):
+        value = self.visit(ctx.expr())
+
+        # Check if the operand is a boolean
+        if not isinstance(value, bool):
+            raise TypeError("Operand of '!' must be boolean")
+
+        return not value

@@ -34,6 +34,26 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExprParser#block.
+    def visitBlock(self, ctx:ExprParser.BlockContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#ifStmt.
+    def visitIfStmt(self, ctx:ExprParser.IfStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#whileStmt.
+    def visitWhileStmt(self, ctx:ExprParser.WhileStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#emptyCommand.
+    def visitEmptyCommand(self, ctx:ExprParser.EmptyCommandContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExprParser#variableDecl.
     def visitVariableDecl(self, ctx:ExprParser.VariableDeclContext):
         return self.visitChildren(ctx)
@@ -59,18 +79,18 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by ExprParser#par.
-    def visitPar(self, ctx:ExprParser.ParContext):
+    # Visit a parse tree produced by ExprParser#parens.
+    def visitParens(self, ctx:ExprParser.ParensContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by ExprParser#add.
-    def visitAdd(self, ctx:ExprParser.AddContext):
+    # Visit a parse tree produced by ExprParser#comparison.
+    def visitComparison(self, ctx:ExprParser.ComparisonContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by ExprParser#string.
-    def visitString(self, ctx:ExprParser.StringContext):
+    # Visit a parse tree produced by ExprParser#or.
+    def visitOr(self, ctx:ExprParser.OrContext):
         return self.visitChildren(ctx)
 
 
@@ -79,18 +99,13 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by ExprParser#mul.
-    def visitMul(self, ctx:ExprParser.MulContext):
+    # Visit a parse tree produced by ExprParser#string.
+    def visitString(self, ctx:ExprParser.StringContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by ExprParser#var.
-    def visitVar(self, ctx:ExprParser.VarContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by ExprParser#and.
-    def visitAnd(self, ctx:ExprParser.AndContext):
+    # Visit a parse tree produced by ExprParser#addSub.
+    def visitAddSub(self, ctx:ExprParser.AddSubContext):
         return self.visitChildren(ctx)
 
 
@@ -101,6 +116,31 @@ class ExprVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by ExprParser#int.
     def visitInt(self, ctx:ExprParser.IntContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#mulDiv.
+    def visitMulDiv(self, ctx:ExprParser.MulDivContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#not.
+    def visitNot(self, ctx:ExprParser.NotContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#and.
+    def visitAnd(self, ctx:ExprParser.AndContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#variable.
+    def visitVariable(self, ctx:ExprParser.VariableContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#equality.
+    def visitEquality(self, ctx:ExprParser.EqualityContext):
         return self.visitChildren(ctx)
 
 

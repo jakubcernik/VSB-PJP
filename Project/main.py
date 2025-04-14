@@ -19,9 +19,26 @@ c = 3.14;
 d = true;
 e = "Hello, World!";
 
-read a, c;
-write "New values:", a, c;
-write "a+c = ", a + c;
+{
+    int x;
+    x = 20;
+    write "In block: x =", x;
+}
+
+if (a > b) {
+    write "a is greater than b";
+} else {
+    write "a is not greater than b";
+}
+
+int i;
+i = 0;
+while (i < 5) {
+    write "i =", i;
+    i = i + 1;
+}
+
+write "Final values:", a, b, c;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)
