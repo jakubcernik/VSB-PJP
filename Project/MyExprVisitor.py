@@ -83,27 +83,50 @@ class MyExprVisitor(ExprVisitor):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
-        # Check that both operands are numeric
+        if ctx.op.text == '.':
+            # String concatenation
+            if not (isinstance(left, str) and isinstance(right, str)):
+                raise TypeError(f"Cannot concatenate non-string values: {left} {ctx.op.text} {right}")
+            return left + right
+
+        # Handle addition and subtraction (existing logic)
         if not (isinstance(left, (int, float)) and isinstance(right, (int, float))):
-            raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} and {right}")
+            raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} {ctx.op.text} {right}")
 
-        op = ctx.op.text
-        if op == '+':
-            result = left + right
-        else:
-            result = left - right
+        # Automatic casting from int to float if one of the operands is float
+        if isinstance(left, float) or isinstance(right, float):
+            left = float(left)
+            right = float(right)
 
-        print(f"Calculated: {left} {op} {right} = {result}")
-        return result
+        if ctx.op.text == '+':
+            return left + right
+        elif ctx.op.text == '-':
+            return left - right
 
-    def visitMul(self, ctx):
-        left = self.visit(ctx.expr(0))
-        right = self.visit(ctx.expr(1))
+        return None
+
+    def visitMulDiv(self, ctx):
+        left = self.visit(ctx.left)
+        right = self.visit(ctx.right)
+
+        # Ensure both operands are numeric
+        if not (isinstance(left, (int, float)) and isinstance(right, (int, float))):
+            raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} {ctx.op.text} {right}")
+
+        # Automatic casting from int to float if one of the operands is float
+        if isinstance(left, float) or isinstance(right, float):
+            # If one is float, ensure both are float
+            left = float(left)
+            right = float(right)
+
         if ctx.op.text == '*':
             return left * right
         elif ctx.op.text == '/':
-            return left / right
-        return left % right
+            if right == 0:
+                raise ZeroDivisionError("Division by zero")
+            return left / right if isinstance(left, float) or isinstance(right, float) else left // right
+
+        return None
 
     def visitInt(self, ctx):
         return int(ctx.INT().getText())
