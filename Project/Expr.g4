@@ -20,13 +20,13 @@ type: 'int'                         #intType
 expr: ID '=' expr                   # assign
     | expr op=('*'|'/'|'%') expr    # mul
     | expr op=('+'|'-') expr        # add
+    | expr '&&' expr                # and
     | INT                           # int
     | FLOAT                         # float
     | STRING                        # string
     | BOOL                          # bool
     | ID                            # var
     | '(' expr ')'                  # par
-
     ;
 
 BOOL: 'true' | 'false';
@@ -54,3 +54,4 @@ ASSIGN: '=';
 SEMI: ';';
 LPAREN: '(';
 RPAREN: ')';
+AND: '&&';

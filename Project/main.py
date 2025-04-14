@@ -8,12 +8,21 @@ import sys
 
 def main():
     input_text = """
-a = 3;
-b = 4;
-c = true;
-"Hello, World!";
+int a, b;
+float c;
+bool d;
+string e;
+
+a = 5;
+b = 10;
+c = 3.14;
+d = true;
+e = "Hello, World!";
+
 a + b * 2;
-(1 + 2) * 3;
+(c + 1.0) * 2;
+d && false;
+e + " How are you?";
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)

@@ -79,6 +79,11 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExprParser#and.
+    def visitAnd(self, ctx:ExprParser.AndContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExprParser#float.
     def visitFloat(self, ctx:ExprParser.FloatContext):
         return self.visitChildren(ctx)

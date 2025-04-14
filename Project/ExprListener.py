@@ -134,6 +134,15 @@ class ExprListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by ExprParser#and.
+    def enterAnd(self, ctx:ExprParser.AndContext):
+        pass
+
+    # Exit a parse tree produced by ExprParser#and.
+    def exitAnd(self, ctx:ExprParser.AndContext):
+        pass
+
+
     # Enter a parse tree produced by ExprParser#float.
     def enterFloat(self, ctx:ExprParser.FloatContext):
         pass
