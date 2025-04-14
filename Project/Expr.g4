@@ -6,6 +6,8 @@ prog: (stmt ';')+;
 
 stmt: decl                          # declaration
     | expr                          # expression
+    | 'read' ID (',' ID)*          # readStmt
+    | 'write' expr (',' expr)*     # writeStmt
     ;
 
 decl: type ID (',' ID)*             # variableDecl

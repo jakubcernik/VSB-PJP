@@ -44,6 +44,11 @@ class MyExprVisitor(ExprVisitor):
 
         return None
 
+    def visitEmptyCommand(self, ctx):
+        # Empty command does nothing
+        # This could be a simple semicolon in the language syntax
+        return None
+
     def visitAssign(self, ctx):
         var_name = ctx.ID().getText()
         value = self.visit(ctx.expr())
@@ -114,3 +119,56 @@ class MyExprVisitor(ExprVisitor):
 
     def visitPar(self, ctx):
         return self.visit(ctx.expr())
+
+    def visitReadStmt(self, ctx):
+        # Process each variable in the read statement
+        for var_id in ctx.ID():
+            var_name = var_id.getText()
+
+            # Check if variable is declared
+            if var_name not in self.variables:
+                raise ValueError(f"Variable '{var_name}' is used before declaration.")
+
+            # Get the variable type
+            var_type = self.variable_types[var_name]
+
+            # Read input from standard input
+            user_input = input(f"Enter value for {var_name} ({var_type}): ")
+
+            # Convert and validate input based on variable type
+            try:
+                if var_type == "int":
+                    value = int(user_input)
+                elif var_type == "float":
+                    value = float(user_input)
+                elif var_type == "bool":
+                    if user_input.lower() == "true":
+                        value = True
+                    elif user_input.lower() == "false":
+                        value = False
+                    else:
+                        raise ValueError("Boolean value must be 'true' or 'false'")
+                elif var_type == "string":
+                    value = user_input  # No conversion needed
+                else:
+                    raise ValueError(f"Unknown type '{var_type}' for variable '{var_name}'.")
+            except ValueError as e:
+                raise ValueError(f"Invalid input for {var_name} ({var_type}): {e}")
+
+            # Assign the validated value to the variable
+            self.variables[var_name] = value
+
+        return None
+
+    def visitWriteStmt(self, ctx):
+        output_values = []
+
+        # Evaluate each expression
+        for expr in ctx.expr():
+            value = self.visit(expr)
+            output_values.append(str(value))
+
+        # Join values with spaces and print with a newline at the end
+        print(" ".join(output_values))
+
+        return None

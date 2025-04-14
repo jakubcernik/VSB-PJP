@@ -19,10 +19,9 @@ c = 3.14;
 d = true;
 e = "Hello, World!";
 
-a + b * 2;
-(c + 1.0) * 2;
-d && false;
-e + " How are you?";
+read a, c;
+write "New values:", a, c;
+write "a+c = ", a + c;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)
