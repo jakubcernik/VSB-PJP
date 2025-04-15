@@ -5,7 +5,7 @@ class MyExprVisitor(ExprVisitor):
     def __init__(self):
         self.results = []
         self.variables = {}
-        self.variable_types = {}  # Stores variable names and their types
+        self.variable_types = {}
 
 
     def visitExpression(self, ctx):
@@ -14,7 +14,7 @@ class MyExprVisitor(ExprVisitor):
         return result
 
     def visitVariableDecl(self, ctx):
-        var_type = ctx.type_().getText()  # Use type_ instead of type
+        var_type = ctx.type_().getText()
 
         # Iterate over all declared variables
         for var in ctx.ID():
@@ -23,11 +23,9 @@ class MyExprVisitor(ExprVisitor):
             # Debug print
             print(f"Declaring variable: {var_name} of type {var_type}")
 
-            # Check if the variable is already declared
+            # Already declared
             if var_name in self.variables:
                 raise ValueError(f"Variable '{var_name}' is already declared.")
-
-            # Initialize the variable with its default value based on type
             if var_type == "int":
                 self.variables[var_name] = 0
             elif var_type == "float":
@@ -39,14 +37,11 @@ class MyExprVisitor(ExprVisitor):
             else:
                 raise ValueError(f"Unknown type '{var_type}' for variable '{var_name}'.")
 
-            # Store the variable type
             self.variable_types[var_name] = var_type
 
         return None
 
     def visitEmptyCommand(self, ctx):
-        # Empty command does nothing
-        # This could be a simple semicolon in the language syntax
         return None
 
     def visitAssign(self, ctx):
@@ -57,11 +52,10 @@ class MyExprVisitor(ExprVisitor):
 
         print(f"Debug: Assigning {var_name} = {value} (expression: {ctx.expr().getText()})")
 
-        # Check if the variable is declared
+        # Check if variable is declared
         if var_name not in self.variables:
             raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
-        # Type-check
         var_type = self.variable_types[var_name]
         if var_type == "int" and not isinstance(value, int):
             raise TypeError(f"Cannot assign non-integer value to variable '{var_name}'.")
@@ -72,7 +66,7 @@ class MyExprVisitor(ExprVisitor):
         elif var_type == "string" and not isinstance(value, str):
             raise TypeError(f"Cannot assign non-string value to variable '{var_name}'.")
 
-        # Update the variable value
+        # Update variable value
         self.variables[var_name] = value
 
         print(f"Updated {var_name} to {value}")
@@ -84,12 +78,11 @@ class MyExprVisitor(ExprVisitor):
         right = self.visit(ctx.right)
 
         if ctx.op.text == '.':
-            # String concatenation
+
             if not (isinstance(left, str) and isinstance(right, str)):
                 raise TypeError(f"Cannot concatenate non-string values: {left} {ctx.op.text} {right}")
             return left + right
 
-        # Handle addition and subtraction (existing logic)
         if not (isinstance(left, (int, float)) and isinstance(right, (int, float))):
             raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} {ctx.op.text} {right}")
 
@@ -109,13 +102,11 @@ class MyExprVisitor(ExprVisitor):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
-        # Ensure both operands are numeric
         if not (isinstance(left, (int, float)) and isinstance(right, (int, float))):
             raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} {ctx.op.text} {right}")
 
-        # Automatic casting from int to float if one of the operands is float
+        # Automatic casting
         if isinstance(left, float) or isinstance(right, float):
-            # If one is float, ensure both are float
             left = float(left)
             right = float(right)
 
@@ -126,7 +117,6 @@ class MyExprVisitor(ExprVisitor):
                 raise ZeroDivisionError("Division by zero")
             return left / right if isinstance(left, float) or isinstance(right, float) else left // right
         elif ctx.op.text == '%':
-            # For modulo, both operands must be integers
             if not (isinstance(left, int) and isinstance(right, int)):
                 raise TypeError("Modulo operation requires integer operands")
             if right == 0:
@@ -158,7 +148,6 @@ class MyExprVisitor(ExprVisitor):
     def visitVariable(self, ctx):
         var_name = ctx.ID().getText()
 
-        # Check if the variable is declared
         if var_name not in self.variables:
             raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
@@ -175,17 +164,13 @@ class MyExprVisitor(ExprVisitor):
         for var_id in ctx.ID():
             var_name = var_id.getText()
 
-            # Check if variable is declared
             if var_name not in self.variables:
                 raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
-            # Get the variable type
             var_type = self.variable_types[var_name]
 
-            # Read input from standard input
             user_input = input(f"Enter value for {var_name} ({var_type}): ")
 
-            # Convert and validate input based on variable type
             try:
                 if var_type == "int":
                     value = int(user_input)
@@ -205,7 +190,6 @@ class MyExprVisitor(ExprVisitor):
             except ValueError as e:
                 raise ValueError(f"Invalid input for {var_name} ({var_type}): {e}")
 
-            # Assign the validated value to the variable
             self.variables[var_name] = value
 
         return None
@@ -218,7 +202,6 @@ class MyExprVisitor(ExprVisitor):
             value = self.visit(expr)
             output_values.append(str(value))
 
-        # Join values with spaces and print with a newline at the end
         print(" ".join(output_values))
 
         return None
@@ -232,14 +215,12 @@ class MyExprVisitor(ExprVisitor):
     def visitIfStmt(self, ctx):
         condition = self.visit(ctx.expr())
 
-        # Check if condition is boolean
         if not isinstance(condition, bool):
             raise TypeError("Condition in 'if' statement must be a boolean expression")
 
-        # If condition is true, execute the 'then' statement
         if condition:
             self.visit(ctx.stmt(0))
-        # If condition is false and there's an 'else' part, execute it
+        # If condition is false and there's an 'else' part
         elif ctx.stmt(1):
             self.visit(ctx.stmt(1))
 
@@ -247,7 +228,6 @@ class MyExprVisitor(ExprVisitor):
 
     def visitWhileStmt(self, ctx):
         print("\nEntering while loop")
-        # Keep executing the statement as long as the condition is true
         while True:
             print("\nLoop iteration")
             print(f"Current variables: {self.variables}")
@@ -255,7 +235,6 @@ class MyExprVisitor(ExprVisitor):
             condition = self.visit(ctx.expr())
             print(f"While loop condition result: {condition}")
 
-            # Check if condition is boolean
             if not isinstance(condition, bool):
                 raise TypeError("Condition in 'while' loop must be a boolean expression")
 
@@ -308,17 +287,14 @@ class MyExprVisitor(ExprVisitor):
     def visitAnd(self, ctx):
         left = self.visit(ctx.left)
 
-        # Check if left operand is a boolean
         if not isinstance(left, bool):
             raise TypeError("Operands of '&&' must be boolean")
 
-        # Short-circuit evaluation - only evaluate right if left is True
         if not left:
             return False
 
         right = self.visit(ctx.right)
 
-        # Check if right operand is a boolean
         if not isinstance(right, bool):
             raise TypeError("Operands of '&&' must be boolean")
 
@@ -327,17 +303,14 @@ class MyExprVisitor(ExprVisitor):
     def visitOr(self, ctx):
         left = self.visit(ctx.left)
 
-        # Check if left operand is a boolean
         if not isinstance(left, bool):
             raise TypeError("Operands of '||' must be boolean")
 
-        # Short-circuit evaluation - only evaluate right if left is False
         if left:
             return True
 
         right = self.visit(ctx.right)
 
-        # Check if right operand is a boolean
         if not isinstance(right, bool):
             raise TypeError("Operands of '||' must be boolean")
 

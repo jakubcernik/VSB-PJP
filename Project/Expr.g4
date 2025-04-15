@@ -1,6 +1,5 @@
 grammar Expr;
 
-
 /** The start rule; begin parsing here. */
 prog: stmt* EOF;
 
@@ -32,7 +31,7 @@ expr:
     | left=expr op=('=='|'!=') right=expr    # equality
     | left=expr '&&' right=expr   # and
     | left=expr '||' right=expr   # or
-    | ID '=' expr                 # assign   // Move assignment to a lower precedence
+    | ID '=' expr                 # assign
     | ID                          # variable
     | INT                         # int
     | FLOAT                       # float

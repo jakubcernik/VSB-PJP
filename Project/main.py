@@ -3,58 +3,94 @@ from ExprLexer import ExprLexer
 from ExprParser import ExprParser
 from MyExprVisitor import MyExprVisitor
 from MyExprListener import MyExprListener
-from SyntaxErrorListener import SyntaxErrorListener  # Importujeme novou třídu
+from SyntaxErrorListener import SyntaxErrorListener
 import sys
 
+# Input -> tokens(Lexer) -> parse tree(Parser) -> visitor/listener
 def main():
     input_text = """
-write "<Testing errors>";
+write "<Constants>";
+write "10: ",10;
+write " 1.25: ", 1.25;
+write "";;
 
-write "4) mod used with float";
-write "20 mod 3.0: ", 20 % 3.0;
+write "<Variables>";
+string s;
+s="Abcd";
+write "s(Abcd): ", s;
 
-write "8) assignment of float to int";
-int x;
-x = 13.25;
-write "x=13.25: ", x;
+float d;
+d=3.141592;
+write "d(3.141592): ", d;
 
-write "12) . only for strings";
-write "abc+10: ", "abc". 10;
+int n;
+n=-500;
+write "n(-500): ", n;
+write "";
 
-write "15) multiple declarations";
-float x;
+bool boolean;
+boolean=true;
+write "boolean(true): ",boolean;
+write "";
 
-write "18) missing declaration";
+write "<Expressions>";
+write "2+3*5(17): ",2+3*5;
+write "17 / 3(5): ", 17 / 3;
+write "17 % 3(2): ", 17 % 3;
+write "2.5*2.5/6.25(1.0): ", 2.5*2.5/6.25;
+write "1.5*3(4.5): ", 1.5*3;
+write "abc+def (abcdef): ", "abc"."def";
+write "";
+
+write  "<Comments>"; // hidden
+// write  "it is error, if you see this";
+
+write "<Automatic int conversion>";
+float y;
 y = 10;
+write "y (10.0): ", y;
 
-write "21) + wont work with strings";
-write "x+y", "x"+"y";
+write "<Multiple Assignments>";
+int i,j,k;
+i=j=k=55;
+write "i=j=k=55: ",i,"=",j,"=",k;
+
+write "<Input - a(int),b(float),c(string),d(bool)>";
+int a;
+float b;
+string c;
+bool e;
+a = 0;
+b = 0.0;
+c = "";
+e = true;
+read a,b,c,e;
+write "a,b,c,e: ", a, ",", b, ",", c, ",",e;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)
     tokens = CommonTokenStream(lexer)
     parser = ExprParser(tokens)
 
-    # Přidání vlastního error listeneru
+    # Adding custom error listener
     error_listener = SyntaxErrorListener()
-    parser.removeErrorListeners()  # Odebrání výchozích listenerů
+    parser.removeErrorListeners()  # removing default error listeners
     parser.addErrorListener(error_listener)
 
-    tree = parser.prog()  # Toto je správné počáteční pravidlo
+    tree = parser.prog()
 
     if error_listener.errors:
         for error in error_listener.errors:
             print(error, file=sys.stderr)
-        sys.exit(1)  # Ukončení programu při nalezení chyby
+        sys.exit(1)
 
-    # Oprava práce s výsledky
-    visitor = MyExprVisitor()  # Předpokládám, že máte vlastní implementaci visitoru
+    visitor = MyExprVisitor()
     visitor.visit(tree)
 
     for result in visitor.results:
         print(result)
 
-    listener = MyExprListener()  # Předpokládám, že máte vlastní implementaci listeneru
+    listener = MyExprListener()
     walker = ParseTreeWalker()
     walker.walk(listener, tree)
 
