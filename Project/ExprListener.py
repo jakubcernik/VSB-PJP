@@ -134,6 +134,15 @@ class ExprListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by ExprParser#fileType.
+    def enterFileType(self, ctx:ExprParser.FileTypeContext):
+        pass
+
+    # Exit a parse tree produced by ExprParser#fileType.
+    def exitFileType(self, ctx:ExprParser.FileTypeContext):
+        pass
+
+
     # Enter a parse tree produced by ExprParser#parens.
     def enterParens(self, ctx:ExprParser.ParensContext):
         pass
@@ -248,6 +257,15 @@ class ExprListener(ParseTreeListener):
 
     # Exit a parse tree produced by ExprParser#unaryMinus.
     def exitUnaryMinus(self, ctx:ExprParser.UnaryMinusContext):
+        pass
+
+
+    # Enter a parse tree produced by ExprParser#fileWrite.
+    def enterFileWrite(self, ctx:ExprParser.FileWriteContext):
+        pass
+
+    # Exit a parse tree produced by ExprParser#fileWrite.
+    def exitFileWrite(self, ctx:ExprParser.FileWriteContext):
         pass
 
 

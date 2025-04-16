@@ -1,4 +1,5 @@
 from ExprVisitor import ExprVisitor
+import os.path
 
 
 class MyExprVisitor(ExprVisitor):
@@ -34,6 +35,8 @@ class MyExprVisitor(ExprVisitor):
                 self.variables[var_name] = False
             elif var_type == "string":
                 self.variables[var_name] = ""
+            elif var_type == "File":
+                self.variables[var_name] = ""
             else:
                 raise ValueError(f"Unknown type '{var_type}' for variable '{var_name}'.")
 
@@ -44,10 +47,34 @@ class MyExprVisitor(ExprVisitor):
     def visitEmptyCommand(self, ctx):
         return None
 
+    def visitFileType(self, ctx):
+        return 'File'
+
+    def visitFileWrite(self, ctx):
+        left = self.visit(ctx.left)
+        right = self.visit(ctx.right)
+
+        left_text = ctx.left.getText()
+
+        if left_text in self.variables:
+            if self.variable_types.get(left_text) != "File":
+                raise TypeError(
+                    f"Variable must be of type File")
+            file_path = left
+        elif isinstance(left, str):
+            file_path = left
+        else:
+            return right
+
+        try:
+            with open(file_path, 'a') as f:
+                f.write(str(right))
+            return file_path
+        except Exception as e:
+            raise ValueError(f"Error writing to file")
+
     def visitAssign(self, ctx):
         var_name = ctx.ID().getText()
-
-        # First evaluate the expression on the right side
         value = self.visit(ctx.expr())
 
         print(f"Debug: Assigning {var_name} = {value} (expression: {ctx.expr().getText()})")
@@ -57,7 +84,11 @@ class MyExprVisitor(ExprVisitor):
             raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
         var_type = self.variable_types[var_name]
-        if var_type == "int" and not isinstance(value, int):
+
+        if var_type == "File":
+            if not isinstance(value, str):
+                value = str(value)
+        elif var_type == "int" and not isinstance(value, int):
             raise TypeError(f"Cannot assign non-integer value to variable '{var_name}'.")
         elif var_type == "float" and not isinstance(value, (int, float)):
             raise TypeError(f"Cannot assign non-float value to variable '{var_name}'.")

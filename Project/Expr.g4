@@ -20,10 +20,12 @@ type: 'int'                         #intType
     | 'float'                       #floatType
     | 'string'                      #stringType
     | 'bool'                        #boolType
+    | 'File'                        #fileType
     ;
 
 expr:
     left=expr op=('*'|'/'|'%') right=expr  #mulDiv
+    | left=expr '<<' right=expr     # fileWrite
     | '(' expr ')'                # parens
     | left=expr op=('+'|'-'|'.') right=expr  #addSub
     | '!' expr                     # not
