@@ -13,6 +13,9 @@ float a;
 int b;
 a = 5.5;
 b = 10;
+string c;
+c = "Hello, World!";
+
 a+a;
 a-a;
 b+b;
@@ -23,6 +26,8 @@ a/a;
 b/b;
 b%b;
 -a;
+c.c;
+
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)

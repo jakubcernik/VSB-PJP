@@ -114,6 +114,7 @@ class MyExprVisitor(ExprVisitor):
 
             if not (isinstance(left, str) and isinstance(right, str)):
                 raise TypeError(f"Cannot concatenate non-string values: {left} {ctx.op.text} {right}")
+            self.instructions.append(f"concat")
             return left + right
 
         if not (isinstance(left, (int, float)) and isinstance(right, (int, float))):
