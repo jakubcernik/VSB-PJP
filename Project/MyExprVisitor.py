@@ -108,11 +108,7 @@ class MyExprVisitor(ExprVisitor):
     def visitAddSub(self, ctx):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
-
-        # Určení typu operandu (alespoň jeden operand float => výsledek bude float)
-        left_type = "F" if isinstance(left, float) else "I"
-        right_type = "F" if isinstance(right, float) else "I"
-        result_type = "F" if left_type == "F" or right_type == "F" else "I"
+        result_type = "I"
 
         if ctx.op.text == '.':
 
@@ -127,6 +123,7 @@ class MyExprVisitor(ExprVisitor):
         if isinstance(left, float) or isinstance(right, float):
             left = float(left)
             right = float(right)
+            result_type = "F"
 
         if ctx.op.text == '+':
             self.instructions.append(f"add {result_type}")

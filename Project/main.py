@@ -9,20 +9,11 @@ import sys
 # Input -> tokens(Lexer) -> parse tree(Parser) -> visitor/listener
 def main():
     input_text = """
-File myFile;
-myFile = "test.txt";
-
-int a;
+float a;
+int b;
 a = 5;
-
-float pi;
-pi = 3.14;
-
-string str;
-str = "Hello";
-
-myFile << "Together\n";
-myFile << a << "(int),  " << pi << "(float), " << str << "(string)";
+b = 10;
+a+b;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)
@@ -43,6 +34,7 @@ myFile << a << "(int),  " << pi << "(float), " << str << "(string)";
 
     visitor = MyExprVisitor()
     visitor.visit(tree)
+    visitor.writeInstructionsToFile("outputCode.txt")
 
     for result in visitor.results:
         print(result)
