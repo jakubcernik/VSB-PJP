@@ -22,6 +22,7 @@ b*b;
 a/a;
 b/b;
 b%b;
+-a;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)

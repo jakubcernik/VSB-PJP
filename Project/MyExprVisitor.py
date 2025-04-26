@@ -367,8 +367,12 @@ class MyExprVisitor(ExprVisitor):
 
     def visitUnaryMinus(self, ctx):
         value = self.visit(ctx.expr())
+        result_type = "I"
         if not isinstance(value, (int, float)):
             raise TypeError(f"Cannot apply unary minus to non-numeric value: {value}")
+        if isinstance(value, float):
+            result_type = "F"
+        self.instructions.append(f"uminus {result_type}")
         return -value
 
     def writeInstructionsToFile(self, filepath):
