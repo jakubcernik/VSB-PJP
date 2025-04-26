@@ -324,8 +324,14 @@ class MyExprVisitor(ExprVisitor):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
+        if isinstance(left, float) or isinstance(right, float):
+            result_type = "F"
+        else:
+            result_type = "I"
+
         op = ctx.op.text
         if op == '==':
+            self.instructions.append(f"eq {result_type}")
             return left == right
         elif op == '!=':
             return left != right

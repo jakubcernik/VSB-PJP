@@ -33,6 +33,8 @@ d&&d;
 d||d;
 a>a;
 b<b;
+a==a;
+b==b;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)
