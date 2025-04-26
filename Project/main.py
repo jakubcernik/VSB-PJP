@@ -35,6 +35,7 @@ a>a;
 b<b;
 a==a;
 b==b;
+!d;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)

@@ -378,6 +378,7 @@ class MyExprVisitor(ExprVisitor):
         print(f"DEBUG: Not operator received value: {value} of type {type(value)}")
         if not isinstance(value, bool):
             raise TypeError("Operand of '!' must be boolean")
+        self.instructions.append(f"not")
         return not value
 
     def visitUnaryMinus(self, ctx):
