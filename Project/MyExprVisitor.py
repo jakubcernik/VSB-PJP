@@ -294,6 +294,7 @@ class MyExprVisitor(ExprVisitor):
     def visitComparison(self, ctx):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
+        result_type = "I"
 
         print(f"Comparing: {left} ({type(left)}) {ctx.op.text} {right} ({type(right)})")
 
@@ -302,10 +303,15 @@ class MyExprVisitor(ExprVisitor):
                 (isinstance(right, int) or isinstance(right, float))):
             raise TypeError("Cannot compare non-numeric values")
 
+        if isinstance(left, float) or isinstance(right, float):
+            result_type = "F"
+
         op = ctx.op.text
         if op == '<':
+            self.instructions.append(f"lt {result_type}")
             return left < right
         elif op == '>':
+            self.instructions.append(f"gt {result_type}")
             return left > right
         elif op == '<=':
             return left <= right
