@@ -79,6 +79,11 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExprParser#fileType.
+    def visitFileType(self, ctx:ExprParser.FileTypeContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExprParser#parens.
     def visitParens(self, ctx:ExprParser.ParensContext):
         return self.visitChildren(ctx)
@@ -141,6 +146,11 @@ class ExprVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by ExprParser#unaryMinus.
     def visitUnaryMinus(self, ctx:ExprParser.UnaryMinusContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#fileWrite.
+    def visitFileWrite(self, ctx:ExprParser.FileWriteContext):
         return self.visitChildren(ctx)
 
 
