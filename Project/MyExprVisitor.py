@@ -154,13 +154,14 @@ class MyExprVisitor(ExprVisitor):
         elif ctx.op.text == '/':
             if right == 0:
                 raise ZeroDivisionError("Division by zero")
+            self.instructions.append(f"div {result_type}")
             return left / right if isinstance(left, float) or isinstance(right, float) else left // right
         elif ctx.op.text == '%':
             if not (isinstance(left, int) and isinstance(right, int)):
                 raise TypeError("Modulo operation requires integer operands")
             if right == 0:
                 raise ZeroDivisionError("Modulo by zero")
-            self.instructions.append(f"div {result_type}")
+            self.instructions.append(f"mod")
             return left % right
 
         return None
