@@ -3,6 +3,7 @@ from ExprVisitor import ExprVisitor
 
 class MyExprVisitor(ExprVisitor):
     def __init__(self):
+        self.instructions = []
         self.results = []
         self.variables = {}
         self.variable_types = {}
@@ -77,6 +78,11 @@ class MyExprVisitor(ExprVisitor):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
+        # Určení typu operandu (alespoň jeden operand float => výsledek bude float)
+        left_type = "F" if isinstance(left, float) else "I"
+        right_type = "F" if isinstance(right, float) else "I"
+        result_type = "F" if left_type == "F" or right_type == "F" else "I"
+
         if ctx.op.text == '.':
 
             if not (isinstance(left, str) and isinstance(right, str)):
@@ -92,8 +98,10 @@ class MyExprVisitor(ExprVisitor):
             right = float(right)
 
         if ctx.op.text == '+':
+            self.instructions.append(f"add {result_type}")
             return left + right
         elif ctx.op.text == '-':
+            self.instructions.append(f"sub {result_type}")
             return left - right
 
         return None
@@ -329,3 +337,8 @@ class MyExprVisitor(ExprVisitor):
         if not isinstance(value, (int, float)):
             raise TypeError(f"Cannot apply unary minus to non-numeric value: {value}")
         return -value
+
+    def writeInstructionsToFile(self, filepath):
+        with open(filepath, "w", encoding="utf-8") as f:
+            for instr in self.instructions:
+                f.write(instr + "\n")
