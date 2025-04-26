@@ -11,9 +11,16 @@ def main():
     input_text = """
 float a;
 int b;
-a = 5;
+a = 5.5;
 b = 10;
-a+b;
+a+a;
+a-a;
+b+b;
+b-b;
+a*a;
+b*b;
+a/a;
+b/b;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)

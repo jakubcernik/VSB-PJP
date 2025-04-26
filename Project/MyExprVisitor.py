@@ -137,6 +137,7 @@ class MyExprVisitor(ExprVisitor):
     def visitMulDiv(self, ctx):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
+        result_type = "I"
 
         if not (isinstance(left, (int, float)) and isinstance(right, (int, float))):
             raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} {ctx.op.text} {right}")
@@ -145,8 +146,10 @@ class MyExprVisitor(ExprVisitor):
         if isinstance(left, float) or isinstance(right, float):
             left = float(left)
             right = float(right)
+            result_type = "F"
 
         if ctx.op.text == '*':
+            self.instructions.append(f"mul {result_type}")
             return left * right
         elif ctx.op.text == '/':
             if right == 0:
@@ -157,6 +160,7 @@ class MyExprVisitor(ExprVisitor):
                 raise TypeError("Modulo operation requires integer operands")
             if right == 0:
                 raise ZeroDivisionError("Modulo by zero")
+            self.instructions.append(f"div {result_type}")
             return left % right
 
         return None
