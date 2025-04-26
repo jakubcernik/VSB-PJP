@@ -15,6 +15,8 @@ a = 5.5;
 b = 10;
 string c;
 c = "Hello, World!";
+bool d;
+d = true;
 
 a+a;
 a-a;
@@ -27,6 +29,8 @@ b/b;
 b%b;
 -a;
 c.c;
+d&&d;
+d||d;
 
 """
     input_stream = InputStream(input_text)

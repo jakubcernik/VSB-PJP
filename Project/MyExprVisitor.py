@@ -340,6 +340,7 @@ class MyExprVisitor(ExprVisitor):
         if not isinstance(right, bool):
             raise TypeError("Operands of '&&' must be boolean")
 
+        self.instructions.append(f"and")
         return left and right
 
     def visitOr(self, ctx):
@@ -349,13 +350,14 @@ class MyExprVisitor(ExprVisitor):
             raise TypeError("Operands of '||' must be boolean")
 
         if left:
+            self.instructions.append(f"or")
             return True
 
         right = self.visit(ctx.right)
 
         if not isinstance(right, bool):
             raise TypeError("Operands of '||' must be boolean")
-
+        self.instructions.append(f"or")
         return left or right
 
     def visitNot(self, ctx):
