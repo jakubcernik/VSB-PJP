@@ -49,6 +49,7 @@ class MyExprVisitor(ExprVisitor):
         return None
 
     def visitFileType(self, ctx):
+        self.instructions.append("push File")
         return 'File'
 
     def visitFileWrite(self, ctx):
@@ -170,21 +171,30 @@ class MyExprVisitor(ExprVisitor):
         return None
 
     def visitInt(self, ctx):
-        return int(ctx.INT().getText())
+        value = int(ctx.INT().getText())
+        self.instructions.append(f"push I {value}")
+        return value
 
     def visitFloat(self, ctx):
-        return float(ctx.FLOAT().getText())
+        value = float(ctx.FLOAT().getText())
+        self.instructions.append(f"push F {value}")
+        return value
 
     def visitString(self, ctx):
-        return ctx.STRING().getText()[1:-1]
+        value = ctx.STRING().getText()[1:-1]
+        escaped_str = value.replace('"', '\\"')
+        self.instructions.append(f'push S "{escaped_str}"')
+        return value
 
     def visitBool(self, ctx):
         # Convert 'true' and 'false' to Python's True and False
         print(f"Visiting BOOL: {ctx.getText()}")
         text = ctx.getText()
         if text == 'true':
+            self.instructions.append("push B true")
             return True
         elif text == 'false':
+            self.instructions.append("push B false")
             return False
         else:
             raise ValueError(f"Unexpected boolean value: {text}")
