@@ -91,26 +91,19 @@ class MyExprVisitor(ExprVisitor):
     def visitAssign(self, ctx):
         var_name = ctx.ID().getText()
         value = self.visit(ctx.expr())
-        self.instructions.append(f"save {var_name}")
-
-        # Přidat load after save pro zachování hodnoty na zásobníku
-        self.instructions.append(f"load {var_name}")
-
-        # Zde je problém - pop se přidává nesprávným způsobem
-        # Instrukce pop by se měla přidat pouze jednou, když je to poslední příkaz
-        # v bloku nebo samostatný příkaz
-
-        # Zjistíme, zda je tento příkaz assign posledním příkazem v bloku nebo samostatným příkazem
-        # Ne metodu parentCtx by se nemělo spoléhat, lépe je zjistit kontext jinak
-
-        # Odstraněna podmínka přidávající redundantní pop
-        #self.instructions.append("pop")
 
         # Kontrola typů a aktualizace hodnoty
         if var_name not in self.variables:
             raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
         var_type = self.variable_types[var_name]
+
+        # Automatická konverze z int na float
+        if var_type == "float" and isinstance(value, int):
+            self.instructions.append("itof")
+
+        self.instructions.append(f"save {var_name}")
+        self.instructions.append(f"load {var_name}")
 
         if var_type == "File":
             if not isinstance(value, str):
@@ -163,17 +156,21 @@ class MyExprVisitor(ExprVisitor):
     def visitMulDiv(self, ctx):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
-        result_type = "I"
+
+        # Určení správného typu operace
+        if isinstance(left, float) or isinstance(right, float):
+            result_type = "F"
+        else:
+            result_type = "I"
 
         if not (isinstance(left, (int, float)) and isinstance(right, (int, float))):
             raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} {ctx.op.text} {right}")
 
         # Automatic casting
-        if isinstance(left, float) and isinstance(right, int) or isinstance(left, int) and isinstance(right, float):
-            left = float(left)
-            right = float(right)
+        if isinstance(left, float) and isinstance(right, int):
             self.instructions.append(f"itof")
-            result_type = "F"
+        elif isinstance(left, int) and isinstance(right, float):
+            self.instructions.append(f"itof")
 
         if ctx.op.text == '*':
             self.instructions.append(f"mul {result_type}")
