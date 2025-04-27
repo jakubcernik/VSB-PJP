@@ -203,10 +203,9 @@ class MyExprVisitor(ExprVisitor):
 
     def visitVariable(self, ctx):
         var_name = ctx.ID().getText()
-
         if var_name not in self.variables:
-            raise ValueError(f"Variable '{var_name}' is used before declaration.")
-
+            raise ValueError("Variable not declared.")
+        self.instructions.append(f"load {var_name}")
         return self.variables[var_name]
 
     def visitParens(self, ctx):
