@@ -36,6 +36,10 @@ b<b;
 a==a;
 b==b;
 !d;
+1>3.5;
+"\n";
+a*b;
+a-b;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)

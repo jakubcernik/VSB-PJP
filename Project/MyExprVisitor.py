@@ -121,9 +121,10 @@ class MyExprVisitor(ExprVisitor):
             raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} {ctx.op.text} {right}")
 
         # Automatic casting from int to float if one of the operands is float
-        if isinstance(left, float) or isinstance(right, float):
+        if isinstance(left, float) and isinstance(right, int) or isinstance(left, int) and isinstance(right, float):
             left = float(left)
             right = float(right)
+            self.instructions.append(f"itof")
             result_type = "F"
 
         if ctx.op.text == '+':
@@ -144,9 +145,10 @@ class MyExprVisitor(ExprVisitor):
             raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} {ctx.op.text} {right}")
 
         # Automatic casting
-        if isinstance(left, float) or isinstance(right, float):
+        if isinstance(left, float) and isinstance(right, int) or isinstance(left, int) and isinstance(right, float):
             left = float(left)
             right = float(right)
+            self.instructions.append(f"itof")
             result_type = "F"
 
         if ctx.op.text == '*':
@@ -218,6 +220,7 @@ class MyExprVisitor(ExprVisitor):
                     value = int(user_input)
                 elif var_type == "float":
                     value = float(user_input)
+                    self.instructions.append(f"itof")
                 elif var_type == "bool":
                     if user_input.lower() == "true":
                         value = True
