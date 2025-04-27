@@ -1,6 +1,4 @@
 from ExprVisitor import ExprVisitor
-import os.path
-
 
 class MyExprVisitor(ExprVisitor):
     def __init__(self):
@@ -30,7 +28,6 @@ class MyExprVisitor(ExprVisitor):
             if var_name in self.variables:
                 raise ValueError(f"Variable '{var_name}' is already declared.")
 
-            # Inicializace proměnných s počáteční hodnotou a vložení instrukcí push+save
             if var_type == "int":
                 self.variables[var_name] = 0
                 self.instructions.append(f"push I 0")
@@ -92,13 +89,13 @@ class MyExprVisitor(ExprVisitor):
         var_name = ctx.ID().getText()
         value = self.visit(ctx.expr())
 
-        # Kontrola typů a aktualizace hodnoty
+        # Type checking
         if var_name not in self.variables:
             raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
         var_type = self.variable_types[var_name]
 
-        # Automatická konverze z int na float
+        # Auto conversion int to float
         if var_type == "float" and isinstance(value, int):
             self.instructions.append("itof")
 
@@ -137,7 +134,6 @@ class MyExprVisitor(ExprVisitor):
         if not (isinstance(left, (int, float)) and isinstance(right, (int, float))):
             raise TypeError(f"Cannot perform arithmetic on non-numeric values: {left} {ctx.op.text} {right}")
 
-        # Automatic casting from int to float if one of the operands is float
         if isinstance(left, float) and isinstance(right, int) or isinstance(left, int) and isinstance(right, float):
             left = float(left)
             right = float(right)
@@ -157,7 +153,6 @@ class MyExprVisitor(ExprVisitor):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
-        # Určení správného typu operace
         if isinstance(left, float) or isinstance(right, float):
             result_type = "F"
         else:
@@ -223,7 +218,7 @@ class MyExprVisitor(ExprVisitor):
         var_name = ctx.ID().getText()
         if var_name not in self.variables:
             raise ValueError(f"Variable '{var_name}' not declared.")
-        # Mezera za jménem proměnné pro konzistenci s očekávaným výstupem
+
         self.instructions.append(f"load {var_name} ")
         return self.variables[var_name]
 
@@ -234,7 +229,7 @@ class MyExprVisitor(ExprVisitor):
         return result
 
     def visitReadStmt(self, ctx):
-        # Pro každou proměnnou v read příkazu
+        # For every variable to read
         for var_id in ctx.ID():
             var_name = var_id.getText()
 
@@ -242,7 +237,7 @@ class MyExprVisitor(ExprVisitor):
                 raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
             var_type = self.variable_types[var_name]
-            type_char = "I"  # výchozí typ
+            type_char = "I"
 
             if var_type == "float":
                 type_char = "F"
@@ -251,21 +246,19 @@ class MyExprVisitor(ExprVisitor):
             elif var_type == "bool":
                 type_char = "B"
 
-            # Přidání instrukce read s typem a uložení do proměnné
             self.instructions.append(f"read {type_char}")
             self.instructions.append(f"save {var_name}")
 
         return None
 
     def visitWriteStmt(self, ctx):
-        # Počet výrazů k vypsání
+        # Number of expressions to print
         count = len(ctx.expr())
 
-        # Vyhodnocení každého výrazu (pushne hodnoty na zásobník)
+        # Evaluate each expression
         for expr in ctx.expr():
             self.visit(expr)
 
-        # Přidání instrukce print s počtem hodnot k vypsání
         self.instructions.append(f"print {count}")
 
         return None
@@ -277,30 +270,28 @@ class MyExprVisitor(ExprVisitor):
         return None
 
     def visitIfStmt(self, ctx):
-        # Vyhodnocení podmínky (výsledek už je na zásobníku)
+        # Evaluate the condition expression
         self.visit(ctx.expr())
 
-        # Získání labelů pro else a konec
         else_label = self.getNextLabel()
         end_label = self.getNextLabel()
 
-        # Podmíněný skok na else větev, pokud je podmínka nepravdivá
+        # If condition is false, jump to else branch
         self.instructions.append(f"fjmp {else_label}")
 
-        # Tělo if bloku
+        # Then
         self.visit(ctx.stmt(0))
 
-        # Nepodmíněný skok na konec if-else bloku
+        # After executing "then" branch, skip else
         self.instructions.append(f"jmp {end_label}")
 
-        # Label pro else část
         self.instructions.append(f"label {else_label}")
 
-        # Tělo else bloku (pokud existuje)
+        # Else
         if ctx.stmt(1):
             self.visit(ctx.stmt(1))
 
-        # Label pro konec if-else bloku
+        # End of the entire if statement
         self.instructions.append(f"label {end_label}")
 
         return None
@@ -309,48 +300,41 @@ class MyExprVisitor(ExprVisitor):
         start_label = self.getNextLabel()
         end_label = self.getNextLabel()
 
-        # Začátek smyčky
+        # Start of the loop
         self.instructions.append(f"label {start_label}")
 
-        # Vyhodnocení podmínky
+        # Evaluate the condition expression
         self.visit(ctx.expr())
 
-        # Podmíněný skok na konec smyčky
+        # If condition is false, exit the loop
         self.instructions.append(f"fjmp {end_label}")
 
-        # Tělo smyčky
         self.visit(ctx.stmt())
 
-        # Skok zpět na začátek
+        # Jump back to the start of the loop
         self.instructions.append(f"jmp {start_label}")
 
-        # Label pro konec smyčky
         self.instructions.append(f"label {end_label}")
 
         return None
 
     def visitComparison(self, ctx):
-        # Uložíme aktuální pozici v instrukcích
         current_position = len(self.instructions)
 
-        # Vyhodnotíme oba operandy
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
-        # Pokud máme int-float porovnání, odstraníme vygenerované instrukce a přegenerujeme je
         if isinstance(left, int) and isinstance(right, float):
-            # Odstraníme instrukce vygenerované při vyhodnocování operandů
+            # Remove previously generated instructions
             self.instructions = self.instructions[:current_position]
 
-            # Vygenerujeme instrukce ve správném pořadí
+            # Correct order
             self.instructions.append(f"push I {left}")
             self.instructions.append("itof")
             self.instructions.append(f"push F {right}")
 
-        # Určení typu operace a dokončení porovnání
         result_type = "F" if isinstance(left, float) or isinstance(right, float) else "I"
 
-        # Přidání porovnávací instrukce
         op = ctx.op.text
         if op == '<':
             self.instructions.append(f"lt {result_type}")
@@ -358,7 +342,7 @@ class MyExprVisitor(ExprVisitor):
         elif op == '>':
             self.instructions.append(f"gt {result_type}")
             return left > right
-        # ... další operátory
+        # Other operators
         elif op == '<=':
             self.instructions.append(f"le {result_type}")
             return left <= right
@@ -372,7 +356,6 @@ class MyExprVisitor(ExprVisitor):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
-        # Určení správného typu operace
         if isinstance(left, str) and isinstance(right, str):
             result_type = "S"
         elif isinstance(left, float) or isinstance(right, float):
@@ -382,7 +365,6 @@ class MyExprVisitor(ExprVisitor):
         else:
             result_type = "I"
 
-        # Automatická konverze z int na float při porovnávání
         if isinstance(left, int) and isinstance(right, float):
             self.instructions.append("itof")
         elif isinstance(left, float) and isinstance(right, int):
@@ -400,7 +382,6 @@ class MyExprVisitor(ExprVisitor):
         return None
 
     def visitAnd(self, ctx):
-        # Vyhodnocení obou operandů
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
@@ -409,12 +390,10 @@ class MyExprVisitor(ExprVisitor):
         if not isinstance(right, bool):
             raise TypeError("Operands of '&&' must be boolean")
 
-        # Přidání instrukce and
         self.instructions.append("and")
         return left and right
 
     def visitOr(self, ctx):
-        # Vyhodnocení obou operandů
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
@@ -423,7 +402,6 @@ class MyExprVisitor(ExprVisitor):
         if not isinstance(right, bool):
             raise TypeError("Operands of '||' must be boolean")
 
-        # Přidání instrukce or
         self.instructions.append("or")
         return left or right
 
@@ -452,11 +430,6 @@ class MyExprVisitor(ExprVisitor):
                 f.write(instr + "\n")
 
     def getNextLabel(self):
-        """Vrátí další dostupný číselný identifikátor pro label"""
         label_id = self.label_counter
         self.label_counter += 1
         return label_id
-
-    def addLabel(self, label_id):
-        """Přidá instrukci label s daným ID do kódu"""
-        self.instructions.append(f"label {label_id}")
