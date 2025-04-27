@@ -330,20 +330,27 @@ class MyExprVisitor(ExprVisitor):
         return None
 
     def visitComparison(self, ctx):
+        # Uložíme aktuální pozici v instrukcích
+        current_position = len(self.instructions)
+
+        # Vyhodnotíme oba operandy
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
-        result_type = "I"
 
-        print(f"Comparing: {left} ({type(left)}) {ctx.op.text} {right} ({type(right)})")
+        # Pokud máme int-float porovnání, odstraníme vygenerované instrukce a přegenerujeme je
+        if isinstance(left, int) and isinstance(right, float):
+            # Odstraníme instrukce vygenerované při vyhodnocování operandů
+            self.instructions = self.instructions[:current_position]
 
-        # Check for numeric types
-        if not ((isinstance(left, int) or isinstance(left, float)) and
-                (isinstance(right, int) or isinstance(right, float))):
-            raise TypeError("Cannot compare non-numeric values")
+            # Vygenerujeme instrukce ve správném pořadí
+            self.instructions.append(f"push I {left}")
+            self.instructions.append("itof")
+            self.instructions.append(f"push F {right}")
 
-        if isinstance(left, float) or isinstance(right, float):
-            result_type = "F"
+        # Určení typu operace a dokončení porovnání
+        result_type = "F" if isinstance(left, float) or isinstance(right, float) else "I"
 
+        # Přidání porovnávací instrukce
         op = ctx.op.text
         if op == '<':
             self.instructions.append(f"lt {result_type}")
@@ -351,9 +358,12 @@ class MyExprVisitor(ExprVisitor):
         elif op == '>':
             self.instructions.append(f"gt {result_type}")
             return left > right
+        # ... další operátory
         elif op == '<=':
+            self.instructions.append(f"le {result_type}")
             return left <= right
         elif op == '>=':
+            self.instructions.append(f"ge {result_type}")
             return left >= right
 
         return None
@@ -362,52 +372,59 @@ class MyExprVisitor(ExprVisitor):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
 
-        if isinstance(left, float) or isinstance(right, float):
+        # Určení správného typu operace
+        if isinstance(left, str) and isinstance(right, str):
+            result_type = "S"
+        elif isinstance(left, float) or isinstance(right, float):
             result_type = "F"
+        elif isinstance(left, bool) and isinstance(right, bool):
+            result_type = "B"
         else:
             result_type = "I"
+
+        # Automatická konverze z int na float při porovnávání
+        if isinstance(left, int) and isinstance(right, float):
+            self.instructions.append("itof")
+        elif isinstance(left, float) and isinstance(right, int):
+            self.instructions.append("itof")
 
         op = ctx.op.text
         if op == '==':
             self.instructions.append(f"eq {result_type}")
             return left == right
         elif op == '!=':
+            self.instructions.append(f"eq {result_type}")
+            self.instructions.append("not")
             return left != right
 
         return None
 
     def visitAnd(self, ctx):
+        # Vyhodnocení obou operandů
         left = self.visit(ctx.left)
+        right = self.visit(ctx.right)
 
         if not isinstance(left, bool):
             raise TypeError("Operands of '&&' must be boolean")
-
-        if not left:
-            return False
-
-        right = self.visit(ctx.right)
-
         if not isinstance(right, bool):
             raise TypeError("Operands of '&&' must be boolean")
 
-        self.instructions.append(f"and")
+        # Přidání instrukce and
+        self.instructions.append("and")
         return left and right
 
     def visitOr(self, ctx):
+        # Vyhodnocení obou operandů
         left = self.visit(ctx.left)
+        right = self.visit(ctx.right)
 
         if not isinstance(left, bool):
             raise TypeError("Operands of '||' must be boolean")
-
-        if left:
-            self.instructions.append(f"or")
-            return True
-
-        right = self.visit(ctx.right)
-
         if not isinstance(right, bool):
             raise TypeError("Operands of '||' must be boolean")
-        self.instructions.append(f"or")
+
+        # Přidání instrukce or
+        self.instructions.append("or")
         return left or right
 
     def visitNot(self, ctx):
