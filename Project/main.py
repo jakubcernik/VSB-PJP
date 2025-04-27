@@ -9,19 +9,30 @@ import sys
 # Input -> tokens(Lexer) -> parse tree(Parser) -> visitor/listener
 def main():
     input_text = """
-write "<Constants>";
-write "10: ",10;
-write " 1.25: ", 1.25;
-write "";;
+if (3<4) write "condition was true";
+else write "condition was false";
 
-write "<Variables>";
-string s;
-s="Abcd";
-write "s(Abcd): ", s;
+if (true) {
+	write "inside";
+	write "second";
+	write "if";
+}
 
-float d;
-d=3.141592;
-write "d(3.141592): ", d;
+int a,b;
+
+while(a<10) {
+ write "a=",a;
+ a=a+1;
+}
+
+a=0;
+
+read b;
+
+while(a<b) {
+ write "a=",a,", b=",b;
+ a=a+1;
+}
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)

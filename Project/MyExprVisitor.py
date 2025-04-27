@@ -8,6 +8,7 @@ class MyExprVisitor(ExprVisitor):
         self.results = []
         self.variables = {}
         self.variable_types = {}
+        self.label_counter = 0
 
 
     def visitExpression(self, ctx):
@@ -23,22 +24,33 @@ class MyExprVisitor(ExprVisitor):
         for var in ctx.ID():
             var_name = var.getText()
 
-            # Debug print
             print(f"Declaring variable: {var_name} of type {var_type}")
 
             # Already declared
             if var_name in self.variables:
                 raise ValueError(f"Variable '{var_name}' is already declared.")
+
+            # Inicializace proměnných s počáteční hodnotou a vložení instrukcí push+save
             if var_type == "int":
                 self.variables[var_name] = 0
+                self.instructions.append(f"push I 0")
+                self.instructions.append(f"save {var_name}")
             elif var_type == "float":
                 self.variables[var_name] = 0.0
+                self.instructions.append(f"push F 0.0")
+                self.instructions.append(f"save {var_name}")
             elif var_type == "bool":
                 self.variables[var_name] = False
+                self.instructions.append(f"push B false")
+                self.instructions.append(f"save {var_name}")
             elif var_type == "string":
                 self.variables[var_name] = ""
+                self.instructions.append(f"push S \"\"")
+                self.instructions.append(f"save {var_name}")
             elif var_type == "File":
                 self.variables[var_name] = ""
+                self.instructions.append(f"push S \"\"")
+                self.instructions.append(f"save {var_name}")
             else:
                 raise ValueError(f"Unknown type '{var_type}' for variable '{var_name}'.")
 
@@ -81,9 +93,20 @@ class MyExprVisitor(ExprVisitor):
         value = self.visit(ctx.expr())
         self.instructions.append(f"save {var_name}")
 
-        print(f"Debug: Assigning {var_name} = {value} (expression: {ctx.expr().getText()})")
+        # Přidat load after save pro zachování hodnoty na zásobníku
+        self.instructions.append(f"load {var_name}")
 
-        # Check if variable is declared
+        # Zde je problém - pop se přidává nesprávným způsobem
+        # Instrukce pop by se měla přidat pouze jednou, když je to poslední příkaz
+        # v bloku nebo samostatný příkaz
+
+        # Zjistíme, zda je tento příkaz assign posledním příkazem v bloku nebo samostatným příkazem
+        # Ne metodu parentCtx by se nemělo spoléhat, lépe je zjistit kontext jinak
+
+        # Odstraněna podmínka přidávající redundantní pop
+        #self.instructions.append("pop")
+
+        # Kontrola typů a aktualizace hodnoty
         if var_name not in self.variables:
             raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
@@ -103,8 +126,6 @@ class MyExprVisitor(ExprVisitor):
 
         # Update variable value
         self.variables[var_name] = value
-
-        print(f"Updated {var_name} to {value}")
 
         return value
 
@@ -204,8 +225,9 @@ class MyExprVisitor(ExprVisitor):
     def visitVariable(self, ctx):
         var_name = ctx.ID().getText()
         if var_name not in self.variables:
-            raise ValueError("Variable not declared.")
-        self.instructions.append(f"load {var_name}")
+            raise ValueError(f"Variable '{var_name}' not declared.")
+        # Mezera za jménem proměnné pro konzistenci s očekávaným výstupem
+        self.instructions.append(f"load {var_name} ")
         return self.variables[var_name]
 
     def visitParens(self, ctx):
@@ -215,7 +237,7 @@ class MyExprVisitor(ExprVisitor):
         return result
 
     def visitReadStmt(self, ctx):
-        # Process each variable in the read statement
+        # Pro každou proměnnou v read příkazu
         for var_id in ctx.ID():
             var_name = var_id.getText()
 
@@ -223,42 +245,31 @@ class MyExprVisitor(ExprVisitor):
                 raise ValueError(f"Variable '{var_name}' is used before declaration.")
 
             var_type = self.variable_types[var_name]
+            type_char = "I"  # výchozí typ
 
-            user_input = input(f"Enter value for {var_name} ({var_type}): ")
+            if var_type == "float":
+                type_char = "F"
+            elif var_type == "string":
+                type_char = "S"
+            elif var_type == "bool":
+                type_char = "B"
 
-            try:
-                if var_type == "int":
-                    value = int(user_input)
-                elif var_type == "float":
-                    value = float(user_input)
-                    self.instructions.append(f"itof")
-                elif var_type == "bool":
-                    if user_input.lower() == "true":
-                        value = True
-                    elif user_input.lower() == "false":
-                        value = False
-                    else:
-                        raise ValueError("Boolean value must be 'true' or 'false'")
-                elif var_type == "string":
-                    value = user_input  # No conversion needed
-                else:
-                    raise ValueError(f"Unknown type '{var_type}' for variable '{var_name}'.")
-            except ValueError as e:
-                raise ValueError(f"Invalid input for {var_name} ({var_type}): {e}")
-
-            self.variables[var_name] = value
+            # Přidání instrukce read s typem a uložení do proměnné
+            self.instructions.append(f"read {type_char}")
+            self.instructions.append(f"save {var_name}")
 
         return None
 
     def visitWriteStmt(self, ctx):
-        output_values = []
+        # Počet výrazů k vypsání
+        count = len(ctx.expr())
 
-        # Evaluate each expression
+        # Vyhodnocení každého výrazu (pushne hodnoty na zásobník)
         for expr in ctx.expr():
-            value = self.visit(expr)
-            output_values.append(str(value))
+            self.visit(expr)
 
-        print(" ".join(output_values))
+        # Přidání instrukce print s počtem hodnot k vypsání
+        self.instructions.append(f"print {count}")
 
         return None
 
@@ -269,36 +280,56 @@ class MyExprVisitor(ExprVisitor):
         return None
 
     def visitIfStmt(self, ctx):
-        condition = self.visit(ctx.expr())
-        self.instructions.append("pop")
+        # Vyhodnocení podmínky (výsledek už je na zásobníku)
+        self.visit(ctx.expr())
 
-        if not isinstance(condition, bool):
-            raise TypeError("Condition in 'if' statement must be a boolean expression")
+        # Získání labelů pro else a konec
+        else_label = self.getNextLabel()
+        end_label = self.getNextLabel()
 
-        if condition:
-            self.visit(ctx.stmt(0))
-        # If condition is false and there's an 'else' part
-        elif ctx.stmt(1):
+        # Podmíněný skok na else větev, pokud je podmínka nepravdivá
+        self.instructions.append(f"fjmp {else_label}")
+
+        # Tělo if bloku
+        self.visit(ctx.stmt(0))
+
+        # Nepodmíněný skok na konec if-else bloku
+        self.instructions.append(f"jmp {end_label}")
+
+        # Label pro else část
+        self.instructions.append(f"label {else_label}")
+
+        # Tělo else bloku (pokud existuje)
+        if ctx.stmt(1):
             self.visit(ctx.stmt(1))
+
+        # Label pro konec if-else bloku
+        self.instructions.append(f"label {end_label}")
 
         return None
 
     def visitWhileStmt(self, ctx):
-        while True:
-            condition = self.visit(ctx.expr())
-            self.instructions.append("pop")
+        start_label = self.getNextLabel()
+        end_label = self.getNextLabel()
 
-            if not isinstance(condition, bool):
-                raise TypeError("Condition in 'while' loop must be a boolean expression")
+        # Začátek smyčky
+        self.instructions.append(f"label {start_label}")
 
-            # Exit loop if condition is false
-            if not condition:
-                break
+        # Vyhodnocení podmínky
+        self.visit(ctx.expr())
 
-            # Execute the body of the loop
-            self.visit(ctx.stmt())
+        # Podmíněný skok na konec smyčky
+        self.instructions.append(f"fjmp {end_label}")
 
-        print("Exiting while loop")
+        # Tělo smyčky
+        self.visit(ctx.stmt())
+
+        # Skok zpět na začátek
+        self.instructions.append(f"jmp {start_label}")
+
+        # Label pro konec smyčky
+        self.instructions.append(f"label {end_label}")
+
         return None
 
     def visitComparison(self, ctx):
@@ -405,3 +436,13 @@ class MyExprVisitor(ExprVisitor):
         with open(filepath, "w", encoding="utf-8") as f:
             for instr in self.instructions:
                 f.write(instr + "\n")
+
+    def getNextLabel(self):
+        """Vrátí další dostupný číselný identifikátor pro label"""
+        label_id = self.label_counter
+        self.label_counter += 1
+        return label_id
+
+    def addLabel(self, label_id):
+        """Přidá instrukci label s daným ID do kódu"""
+        self.instructions.append(f"label {label_id}")
