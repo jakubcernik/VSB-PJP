@@ -13,6 +13,7 @@ class MyExprVisitor(ExprVisitor):
     def visitExpression(self, ctx):
         result = self.visit(ctx.expr())
         self.results.append(result)
+        self.instructions.append("pop")
         return result
 
     def visitVariableDecl(self, ctx):
@@ -78,6 +79,7 @@ class MyExprVisitor(ExprVisitor):
     def visitAssign(self, ctx):
         var_name = ctx.ID().getText()
         value = self.visit(ctx.expr())
+        self.instructions.append(f"save {var_name}")
 
         print(f"Debug: Assigning {var_name} = {value} (expression: {ctx.expr().getText()})")
 
@@ -269,6 +271,7 @@ class MyExprVisitor(ExprVisitor):
 
     def visitIfStmt(self, ctx):
         condition = self.visit(ctx.expr())
+        self.instructions.append("pop")
 
         if not isinstance(condition, bool):
             raise TypeError("Condition in 'if' statement must be a boolean expression")
@@ -282,13 +285,9 @@ class MyExprVisitor(ExprVisitor):
         return None
 
     def visitWhileStmt(self, ctx):
-        print("\nEntering while loop")
         while True:
-            print("\nLoop iteration")
-            print(f"Current variables: {self.variables}")
-
             condition = self.visit(ctx.expr())
-            print(f"While loop condition result: {condition}")
+            self.instructions.append("pop")
 
             if not isinstance(condition, bool):
                 raise TypeError("Condition in 'while' loop must be a boolean expression")
@@ -299,7 +298,6 @@ class MyExprVisitor(ExprVisitor):
 
             # Execute the body of the loop
             self.visit(ctx.stmt())
-            print(f"After loop body, variables: {self.variables}")
 
         print("Exiting while loop")
         return None
