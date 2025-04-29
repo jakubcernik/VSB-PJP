@@ -246,7 +246,6 @@ class MyExprVisitor(ExprVisitor):
                 type_char = "B"
 
             self.instructions.append(f"read {type_char}")
-            self.variables[var_name] = int(input(f"Enter value for {var_name}: "))
             self.instructions.append(f"save {var_name}")
 
         return None
