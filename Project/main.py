@@ -9,18 +9,30 @@ import sys
 # Input -> tokens(Lexer) -> parse tree(Parser) -> visitor/listener
 def main():
     input_text = """
-write "<Relational operators>";
-write "1<5: ", 1 < 5;
-write "1>3.5: ", 1 > 3.5;
-write "aa==aa: ", "aa"=="aa";
-write "aa==ab: ", "aa"=="ab";
-write "aa!=ab: ", "aa"!="ab";
-write "";
-write "<Logic operators>";
-write "false and true (false):", false && true;
-write "false or true (true):", false || true;
-write "not 1==2 (true):", !(1==2);
-write "true or false and true (true):", true || false && true;
+if (3<4) write "condition was true";
+else write "condition was false";
+
+if (true) {
+	write "inside";
+	write "second";
+	write "if";
+}
+
+int a,b;
+
+while(a<10) {
+ write "a=",a;
+ a=a+1;
+}
+
+a=0;
+
+read b;
+
+while(a<b) {
+ write "a=",a,", b=",b;
+ a=a+1;
+}
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)
