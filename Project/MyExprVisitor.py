@@ -12,6 +12,7 @@ class MyExprVisitor(ExprVisitor):
         result = self.visit(ctx.expr())
         self.results.append(result)
         self.instructions.append("pop")
+        print("DEBUG: Expression result:", result)
         return result
 
     def visitVariableDecl(self, ctx):
