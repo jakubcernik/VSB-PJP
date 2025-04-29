@@ -143,6 +143,15 @@ class ExprListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by ExprParser#fappendExpr.
+    def enterFappendExpr(self, ctx:ExprParser.FappendExprContext):
+        pass
+
+    # Exit a parse tree produced by ExprParser#fappendExpr.
+    def exitFappendExpr(self, ctx:ExprParser.FappendExprContext):
+        pass
+
+
     # Enter a parse tree produced by ExprParser#parens.
     def enterParens(self, ctx:ExprParser.ParensContext):
         pass
@@ -194,6 +203,15 @@ class ExprListener(ParseTreeListener):
 
     # Exit a parse tree produced by ExprParser#addSub.
     def exitAddSub(self, ctx:ExprParser.AddSubContext):
+        pass
+
+
+    # Enter a parse tree produced by ExprParser#fopenExpr.
+    def enterFopenExpr(self, ctx:ExprParser.FopenExprContext):
+        pass
+
+    # Exit a parse tree produced by ExprParser#fopenExpr.
+    def exitFopenExpr(self, ctx:ExprParser.FopenExprContext):
         pass
 
 

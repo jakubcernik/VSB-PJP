@@ -34,6 +34,8 @@ expr:
     | left=expr '&&' right=expr   # and
     | left=expr '||' right=expr   # or
     | ID '=' expr                 # assign
+    | 'fopen' ID ',' expr         # fopenExpr
+    | 'fappend' ID (',' expr)+    # fappendExpr
     | ID                          # variable
     | INT                         # int
     | FLOAT                       # float

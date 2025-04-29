@@ -139,6 +139,13 @@ class Interpreter:
         elif parts[0] == "concat":
             self._execute_binary_op(lambda a, b: a + b)
 
+        elif parts[0] == "fopen":
+            self._execute_fopen()
+
+        elif parts[0] == "fappend":
+            count = int(parts[1])
+            self._execute_fappend(count)
+
         else:
             raise ValueError(f"Unknown instruction: {instr}")
 
@@ -169,6 +176,53 @@ class Interpreter:
         b = self.stack.pop()
         a = self.stack.pop()
         self.stack.append(operation(a, b))
+
+    def _execute_fopen(self):
+        """Zpracuje instrukci fopen pro otevření souboru"""
+        if not self.stack:
+            raise ValueError("Cannot execute fopen: stack is empty")
+
+        # Cesta k souboru je na vrcholu zásobníku
+        file_path = self.stack.pop()
+
+        if not isinstance(file_path, str):
+            raise TypeError("File path must be a string")
+
+        # Pro zjednodušení uložíme cestu k souboru zpět na zásobník
+        self.stack.append(file_path)
+
+        # Ověříme, že soubor je přístupný
+        try:
+            with open(file_path, 'a+'):
+                pass
+        except Exception as e:
+            raise ValueError(f"Cannot open file '{file_path}': {e}")
+
+    def _execute_fappend(self, count):
+        """Zpracuje instrukci fappend pro přidání obsahu do souboru"""
+        if len(self.stack) < count:
+            raise ValueError(f"Cannot execute fappend: stack has less than {count} elements")
+
+        # Vyjmeme všechny hodnoty ze zásobníku
+        values = []
+        for _ in range(count):
+            values.insert(0, self.stack.pop())
+
+        # První hodnota je cesta k souboru
+        file_path = values[0]
+        if not isinstance(file_path, str):
+            raise TypeError("File path must be a string")
+
+        # Zbytek jsou hodnoty k zápisu
+        data_to_write = values[1:]
+
+        # Zápis do souboru
+        try:
+            with open(file_path, 'a') as file:
+                for value in data_to_write:
+                    file.write(str(value))
+        except Exception as e:
+            raise ValueError(f"Error writing to file '{file_path}': {e}")
 
 
 if __name__ == "__main__":

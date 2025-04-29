@@ -9,30 +9,9 @@ import sys
 # Input -> tokens(Lexer) -> parse tree(Parser) -> visitor/listener
 def main():
     input_text = """
-if (3<4) write "condition was true";
-else write "condition was false";
-
-if (true) {
-	write "inside";
-	write "second";
-	write "if";
-}
-
-int a,b;
-
-while(a<10) {
- write "a=",a;
- a=a+1;
-}
-
-a=0;
-
-read b;
-
-while(a<b) {
- write "a=",a,", b=",b;
- a=a+1;
-}
+File a;
+fopen a, "test.txt";
+fappend a, 1, "A", 2;
 """
     input_stream = InputStream(input_text)
     lexer = ExprLexer(input_stream)

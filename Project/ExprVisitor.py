@@ -84,6 +84,11 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExprParser#fappendExpr.
+    def visitFappendExpr(self, ctx:ExprParser.FappendExprContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExprParser#parens.
     def visitParens(self, ctx:ExprParser.ParensContext):
         return self.visitChildren(ctx)
@@ -111,6 +116,11 @@ class ExprVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by ExprParser#addSub.
     def visitAddSub(self, ctx:ExprParser.AddSubContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#fopenExpr.
+    def visitFopenExpr(self, ctx:ExprParser.FopenExprContext):
         return self.visitChildren(ctx)
 
 

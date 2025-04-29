@@ -434,3 +434,72 @@ class MyExprVisitor(ExprVisitor):
         label_id = self.label_counter
         self.label_counter += 1
         return label_id
+
+    def visitFopenExpr(self, ctx):
+        # Získáme jméno proměnné souboru a cestu k souboru
+        file_var = ctx.ID().getText()
+        file_path = self.visit(ctx.expr())
+
+        if file_var not in self.variables:
+            raise ValueError(f"Proměnná '{file_var}' není deklarována.")
+
+        if self.variable_types.get(file_var) != "File":
+            raise TypeError(f"Proměnná '{file_var}' musí být typu File.")
+
+        # Generujeme instrukce
+        self.instructions.append(f"push S {file_path}")
+        self.instructions.append(f"fopen")
+        self.instructions.append(f"save {file_var}")
+
+        # Aktualizujeme hodnotu proměnné - uložíme cestu k souboru
+        self.variables[file_var] = file_path
+
+        # Můžeme také zkusit otevřít soubor, abychom ověřili, že existuje
+        '''
+        try:
+            with open(file_path, 'a+'):
+                pass
+        except Exception as e:
+            raise ValueError(f"Nelze otevřít soubor '{file_path}': {e}")
+        '''
+
+        return file_path
+
+    def visitFappendExpr(self, ctx):
+        # Získáme jméno proměnné souboru
+        file_var = ctx.ID().getText()
+
+        if file_var not in self.variables:
+            raise ValueError(f"Proměnná '{file_var}' není deklarována.")
+
+        if self.variable_types.get(file_var) != "File":
+            raise TypeError(f"Proměnná '{file_var}' musí být typu File.")
+
+        # Získáme cestu k souboru
+        file_path = self.variables[file_var]
+
+        # Načteme proměnnou souboru
+        self.instructions.append(f"load {file_var}")
+
+        # Načítáme všechny parametry pro zápis
+        exprs = ctx.expr()
+        count = len(exprs)
+        values = []
+
+        for expr in exprs:
+            value = self.visit(expr)
+            values.append(str(value))
+
+        # Generujeme instrukci fappend s počtem parametrů
+        self.instructions.append(f"fappend {count + 1}")  # +1 protože první parametr je samotný soubor
+
+        # Provedeme skutečný zápis do souboru
+        '''
+        try:
+            with open(file_path, 'a+') as file:
+                for value in values:
+                    file.write(value)
+        except Exception as e:
+            raise ValueError(f"Chyba při zápisu do souboru '{file_path}': {e}")
+        '''
+        return None
